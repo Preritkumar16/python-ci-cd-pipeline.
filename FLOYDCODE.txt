@@ -1,0 +1,49 @@
+INF = float('inf')  # Representation of infinity
+
+def floyd_warshall(graph):
+    # Get the number of vertices in the graph
+    n = len(graph)
+    
+    # Create a distance matrix to store shortest paths
+    dist = [row[:] for row in graph]  # Copy the graph into dist matrix
+    
+    # Display initial distance matrix (D0)
+    print("D0 (Initial Distance Matrix):")
+    print_distance_matrix(dist)
+    
+    # Apply Floyd-Warshall Dynamic Programming algorithm
+    for k in range(n):
+        print(f"\nConsidering vertex {k} as intermediate vertex:")
+        for i in range(n):
+            for j in range(n):
+                # If a shorter path from i to j exists through k, update the distance
+                if dist[i][j] > dist[i][k] + dist[k][j]:
+                    dist[i][j] = dist[i][k] + dist[k][j]
+        # Display the current distance matrix (Dk)
+        print(f"D{k+1} (After considering vertex {k} as intermediate):")
+        print_distance_matrix(dist)
+    
+    return dist
+
+def print_distance_matrix(matrix):
+    for row in matrix:
+        print(" ".join(f"{x:>3}" if x != INF else "INF" for x in row))
+
+# Example graph represented by an adjacency matrix
+graph = [
+    [0, 3, 10, 11],
+    [2, 0, 11, 12],
+    [INF, 7, 0, 1],
+    [6, INF, 16, 0]
+]
+
+# Run Floyd-Warshall to find the shortest paths between all pairs
+shortest_paths = floyd_warshall(graph)
+
+# Print the final result
+print("\nShortest paths matrix after all iterations:")
+print_distance_matrix(shortest_paths)
+'''
+time 0(V3)
+space 0(V2)
+'''

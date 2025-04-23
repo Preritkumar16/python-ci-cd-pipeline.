@@ -1,0 +1,58 @@
+'''Algorithm
+1. Initialize:
+     *Set up an 8x8 chessboard with all positions initially empty.
+     *Start placing queens from the first row
+2. For each row:
+      *Try placing a queen in each column.
+     *Check if the current placement is valid (i.e., the queen does not threaten any previously placed         queens).
+3. If a queen can be safely placed:
+      *Move to the next row and repeat the process.
+4. If no valid placement exists:
+      *Backtrack by removing the queen from the current row and trying the next column.
+5. Repeat until all queens are placed on the board.
+
+
+CODE:
+    '''
+def is_safe(board, row, col):
+    # Check for queen in the same column
+    for i in range(row):
+        if board[i] == col or abs(board[i] - col) == abs(i - row):
+            return False
+    return True
+
+def solve_queen(board, row):
+    # If all queens are placed, print the solution
+    if row == 8:
+        print_board(board)
+        return True
+
+    # Try placing queens in all columns for the current row
+    for col in range(8):
+        if is_safe(board, row, col):
+            board[row] = col  # Place queen at (row, col)
+            if solve_queen(board, row + 1):  # Recurse to next row
+                return True
+            board[row] = -1  # Backtrack if placing queen didn't work
+
+    return False  # No valid placement found for this row
+
+def print_board(board):
+    for row in board:
+        row_str = ['Q' if i == row else '.' for i in range(8)]
+        print(' '.join(row_str))
+    print("\n")
+
+# Main function to initiate the solution
+def solve_8_queens():
+    board = [-1] * 8  # Create an 8x8 board initialized to -1 (no queens placed)
+    solve_queen(board, 0)
+
+# Run the function to solve the problem
+solve_8_queens()
+
+'''
+Analysis:
+Case	                  Time Complexity	Space Complexity
+Best/Avg/Worst 	O(N!)	            O(N)
+'''

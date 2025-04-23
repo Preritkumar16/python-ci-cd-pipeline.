@@ -1,0 +1,136 @@
+'''Algorithm:
+1. Locate the blank (0) tile in the initial state.
+2. Create a node representing the current state, including:
+    *Current board,
+     *Blank tile coordinates,
+      *Depth (number of moves from the start),
+       *Heuristic cost.
+3. Push the node to a min-heap.
+4. While the heap is not empty:
+     *Pop the node with the least estimated cost.
+     *If it is the goal, stop and print path.
+     *Otherwise, generate all valid children (possible tile moves).
+     *For each child, calculate cost and push to the heap if not visited.
+5. If no solution is found, return failure.
+
+
+CODE:
+'''
+import heapq
+import copy
+
+N = 4
+goal = [[1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9,10,11,12],
+        [13,14,15,0]]
+
+dx = [1, -1, 0, 0]
+dy = [0, 0, 1, -1]
+
+class Node:
+    def __init__(self, mat, x, y, level, parent):
+        self.mat = mat
+        self.x = x
+        self.y = y
+        self.level = level
+        self.parent = parent
+        self.cost = self.calculate_cost()
+
+    def __lt__(self, other):
+        return self.cost < other.cost
+
+    def calculate_cost(self):
+        cost = 0
+        for i in range(N):
+            for j in range(N):
+                val = self.mat[i][j]
+                if val != 0:
+                    goal_x = (val - 1) // N
+                    goal_y = (val - 1) % N
+                    cost += abs(i - goal_x) + abs(j - goal_y)
+        return cost + self.level
+
+def print_path(node):
+    path = []
+    while node:
+        path.append(node.mat)
+        node = node.parent
+    for mat in reversed(path):
+        for row in mat:
+            print(row)
+        print()
+
+def is_safe(x, y):
+    return 0 <= x < N and 0 <= y < N
+
+def solve_15_puzzle(initial):
+    for i in range(N):
+        for j in range(N):
+            if initial[i][j] == 0:
+                start = Node(initial, i, j, 0, None)
+                break
+
+    heap = []
+    heapq.heappush(heap, start)
+
+    visited = set()
+
+    while heap:
+        current = heapq.heappop(heap)
+
+        # Print current state (optional)
+        print("Current State (moves:", current.level, "cost:", current.cost, "):")
+        for row in current.mat:
+            print(row)
+        print("--------------------------")
+
+        if current.mat == goal:
+            print("Solution found in", current.level, "moves:")
+            print_path(current)
+            return
+
+        mat_str = str(current.mat)
+        if mat_str in visited:
+            continue
+        visited.add(mat_str)
+
+        for i in range(4):
+            new_x = current.x + dx[i]
+            new_y = current.y + dy[i]
+
+            if is_safe(new_x, new_y):
+                new_mat = copy.deepcopy(current.mat)
+                new_mat[current.x][current.y], new_mat[new_x][new_y] = new_mat[new_x][new_y], new_mat[current.x][current.y]
+                child = Node(new_mat, new_x, new_y, current.level + 1, current)
+                heapq.heappush(heap, child)
+
+    print("No solution exists.")
+
+# Example input
+initial = [[1, 2, 0, 4],
+           [5, 6, 3, 8],
+           [9,10,7,12],
+           [13,14,11,15]]
+
+solve_15_puzzle(initial)
+'''
+Analysis:
+Let:
+N = 4 (size of the puzzle),
+b = 4 (max branching factor),
+d = depth of optimal solution,
+n! = number of tile arrangements (16! ≈ 2 × 10¹³ but only half solvable).
+
+Time Complexity
+Case	        Time Complexity	                   Reason
+Best	            O(d log d)	                          Minimal expansion, good heuristic
+Average	O(b^d × log(b^d)) = O(b^d d)	  Most practical cases
+Worst	        O(n!)	                           Exploring nearly all states (unlikely)
+
+Space Complexity
+Case	                 Space Complexity	   Reason
+Best	                              O(d)	          Only optimal path stored
+Average	                      O(b^d)	  Visited states and heap
+Worst	                      O(n!)	          sAll possible states stored (in theory)
+'''

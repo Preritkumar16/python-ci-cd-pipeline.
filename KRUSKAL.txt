@@ -1,0 +1,85 @@
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # Path compression
+        return self.parent[x]
+
+    def union(self, x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+
+        if rootX != rootY:
+            # Union by rank
+            if self.rank[rootX] > self.rank[rootY]:
+                self.parent[rootY] = rootX
+            elif self.rank[rootX] < self.rank[rootY]:
+                self.parent[rootX] = rootY
+            else:
+                self.parent[rootY] = rootX
+                self.rank[rootX] += 1
+            return True
+        return False
+
+def kruskal(vertices, edges):
+    # Sort edges by weight
+    edges.sort(key=lambda edge: edge[2])
+
+    uf = UnionFind(vertices)
+    mst = []
+
+    for u, v, weight in edges:
+        if uf.union(u, v):  # If u and v are not connected, add the edge to MST
+            mst.append((u, v, weight))
+        if len(mst) == vertices - 1:
+            break
+
+    return mst
+
+# Example usage
+vertices = 6  # Number of vertices
+edges = [
+    (0, 1, 4),  # Edge between node 0 and 1 with weight 4
+    (0, 2, 4),  # Edge between node 0 and 2 with weight 4
+    (1, 2, 2),  # Edge between node 1 and 2 with weight 2
+    (1, 3, 5),  # Edge between node 1 and 3 with weight 5
+    (2, 3, 3),  # Edge between node 2 and 3 with weight 3
+    (3, 4, 6),  # Edge between node 3 and 4 with weight 6
+    (2, 5, 7),  # Edge between node 2 and 5 with weight 7
+    (4, 5, 8),  # Edge between node 4 and 5 with weight 8
+]
+
+mst = kruskal(vertices, edges)
+print("Edges in the Minimum Spanning Tree (MST):")
+for edge in mst:
+    print(edge)
+
+'''
+time O(ElogE)
+space O(V+E)
+Kruskal(G):
+    # Step 1: Sort edges by weight
+    Sort edges E by weight in non-decreasing order
+
+    # Step 2: Initialize Union-Find structure for vertices
+    Initialize parent[v] = v for each v in V
+    Initialize rank[v] = 0 for each v in V
+
+    # Step 3: Initialize MST as empty set
+    MST = {}
+
+    # Step 4: Process edges in sorted order
+    for each edge (u, v, w) in E:
+        if Find(u) != Find(v):       # If u and v are not connected
+            MST.add((u, v, w))        # Add edge to MST
+            Union(u, v)               # Union the sets of u and v
+
+        if len(MST) == |V| - 1:       # Stop when MST contains V-1 edges
+            break
+
+    # Step 5: Return MST
+    return MST
+'''

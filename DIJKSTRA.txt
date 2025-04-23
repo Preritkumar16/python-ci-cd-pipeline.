@@ -1,0 +1,61 @@
+import heapq
+
+def dijkstra(graph, start):
+    # Priority queue: (distance, node)
+    heap = [(0, start)]
+    
+    # Dictionary to store the shortest distance to each node
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+
+    while heap:
+        current_dist, current_node = heapq.heappop(heap)
+
+        # Skip if we have already found a shorter path
+        if current_dist > distances[current_node]:
+            continue
+
+        for neighbor, weight in graph[current_node]:
+            distance = current_dist + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(heap, (distance, neighbor))
+
+    return distances
+
+# Example graph (adjacency list)
+graph = {
+    'A': [('B', 4), ('C', 1)],
+    'B': [('E', 4)],
+    'C': [('B', 2), ('D', 4)],
+    'D': [('E', 4)],
+    'E': []
+}
+
+# Run Dijkstra from node 'A'
+distances = dijkstra(graph, 'A')
+print("Shortest distances from A:", distances)
+
+'''
+time O((V+E)logV)
+space O(V)
+
+1. Create a min-priority queue Q (or min-heap)
+
+2. For each vertex v in V:
+       dist[v] ← ∞
+       Insert (dist[v], v) into Q
+
+3. dist[src] ← 0
+   Update (dist[src], src) in Q
+
+4. While Q is not empty:
+     u ← extract_min(Q)      // vertex with smallest dist[u]
+
+     For each neighbor v of u:
+         if dist[u] + weight(u, v) < dist[v]:
+             dist[v] ← dist[u] + weight(u, v)
+             Update priority of v in Q to dist[v]
+
+5. Return dist[]
+'''
